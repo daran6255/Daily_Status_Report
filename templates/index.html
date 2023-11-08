@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WVF||Daily Status Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <style>
+        .required::after {
+            content: ' *';
+            color: red;
+        }
+        /* Global styles */
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+            background-color: #f5f5f5; /* Light gray background color */
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Form styles */
+        .entry {
+            background-color: #fff;
+            margin: 0 5%;
+            padding: 30px 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .align {
+            text-align: left;
+            padding: 10px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .col-25 {
+            flex: 25%;
+            text-align: right;
+            padding-right: 10px;
+            align-self: center;
+        }
+
+        .col-75 {
+            flex: 75%;
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        label {
+            color: #641717;
+            font-weight: bold;
+            display: inline-block;
+            width: 150px; /* Adjust as needed */
+            text-align: left;
+        }
+
+        .Submit-button {
+            background-color: #04AA6D;
+            color: #fff;
+            text-align: center;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .Submit-button:hover {
+            background-color: #039564; /* Darker green on hover */
+        }
+    </style>
+</head>
+<body>
+    <h1>Daily Status Report</h1>
+    <form id="statusReportForm" method="post" action="/submit">
+        <div id="entries">
+
+            <!-- Initial project, name, activity, and time entry -->
+            <div class="entry">
+                <div class="row">
+                    <div class="col-25">
+                        <label for="date">Date:</label>
+                    </div>
+                    <div class="col-75">
+                        <input type="date" name="date[]" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="project">Project:</label>
+                    </div>
+                    <div class="col-75">
+                        <select name="project[]">
+                            <option value="Project A">Project A</option>
+                            <option value="Project B">Project B</option>
+                            <option value="Project C">Project C</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="name">Name:</label>
+                    </div>
+                    <div class="col-75">
+                        <select name="Name[]">
+                            <option value="Menaga">Menaga</option>
+                            <option value="Dharanidaran">Dharanidaran</option>
+                            <option value="Saravana">Saravana</option>
+                            <option value="Ayyappan">Ayyappan</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="activity">Activity:</label>
+                    </div>
+                    <div class="col-75">
+                        <select name="Activity[]">
+                            <option value="Activity A">Activity A</option>
+                            <option value="Activity B">Activity B</option>
+                            <option value="Activity C">Activity C</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="Description">Description:</label>
+                    </div>
+                    <div class="col-75">
+                        <input type="text" name="Description[]" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="startTime">Start Time:</label>
+                    </div>
+                    <div class="col-75">
+                        <input type="time" name="startTime[]" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="endTime">End Time:</label>
+                    </div>
+                    <div class="col-75">
+                        <input type="time" name="endTime[]" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-25">
+                        <label for="effort">Effort (hours):</label>
+                    </div>
+                    <div class="col-75">
+                        <input type="text" name="effort[]" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <button type="button" id="addEntryButton" class="btn btn-primary">Add Entry</button>
+        <br>
+        <br>
+        <div class="row">
+            <div class="col-25">
+                <label for="totalHours">Total Hours:</label>
+            </div>
+            <div class="col-75" style="display: flex; align-items: center;">
+                <!-- <label for="totalHours" style="width: 80px;">Total Hours:</label> -->
+                <input type="text" id="totalHours" name="totalHours" readonly style="width: 80px;">
+            </div>
+        </div>
+        <br>
+        <button type="submit" class="Submit-button">Submit</button>
+    </form>
+
+    <script>
+        // Function to calculate effort for a single entry
+        function calculateEffort(entry) {
+            const startTime = entry.querySelector('input[name="startTime[]"]').value;
+            const endTime = entry.querySelector('input[name="endTime[]"]').value;
+
+            // Convert start and end times to Date objects
+            const startDate = new Date(`2023-01-01 ${startTime}`);
+            const endDate = new Date(`2023-01-01 ${endTime}`);
+
+            // Calculate the time difference in milliseconds
+            const timeDifference = endDate - startDate;
+
+            // Calculate effort in hours
+            const effortHours = timeDifference / (1000 * 60 * 60);
+
+            // Update the effort field for this entry
+            entry.querySelector('input[name="effort[]"]').value = effortHours.toFixed(2);
+
+            // Recalculate the total hours
+            calculateTotalHours();
+        }
+
+        // Function to calculate total hours for all entries
+        function calculateTotalHours() {
+            const entries = document.querySelectorAll('.entry');
+            let totalHours = 0;
+
+            entries.forEach((entry) => {
+                const effort = parseFloat(entry.querySelector('input[name="effort[]"]').value);
+                totalHours += isNaN(effort) ? 0 : effort;
+            });
+
+            // Update the total hours field
+            document.getElementById('totalHours').value = totalHours.toFixed(2);
+        }
+
+        // Add input event listeners to calculate effort for each entry
+        const entries = document.querySelectorAll('.entry');
+        entries.forEach((entry) => {
+            const startTimeInput = entry.querySelector('input[name="startTime[]"]');
+            const endTimeInput = entry.querySelector('input[name="endTime[]"]');
+            
+            startTimeInput.addEventListener('input', () => calculateEffort(entry));
+            endTimeInput.addEventListener('input', () => calculateEffort(entry));
+        });
+
+        // Add click event listener to the "Add Entry" button
+        document.getElementById('addEntryButton').addEventListener('click', () => {
+            const newEntry = document.querySelector('.entry').cloneNode(true);
+            document.getElementById('entries').appendChild(newEntry);
+
+            // Clear the values in the new entry
+            newEntry.querySelectorAll('input[type="text"]').forEach((input) => input.value = '');
+            newEntry.querySelector('select').selectedIndex = 0;
+
+            // Add input event listeners to the new entry
+            const startTimeInput = newEntry.querySelector('input[name="startTime[]"]');
+            const endTimeInput = newEntry.querySelector('input[name="endTime[]"]');
+            
+            startTimeInput.addEventListener('input', () => calculateEffort(newEntry));
+            endTimeInput.addEventListener('input', () => calculateEffort(newEntry));
+        });
+    </script>
+</body>
+</html>
